@@ -44,10 +44,9 @@ var dashboard = new ParseDashboard({
       serverURL: process.env.SERVER_URL || 'http://localhost:1337/parse',
       appName: process.env.APP_NAME || 'MyApp',
     },
+    {allowInsecureHTTP: configDash.allowInsecureHTTP}
   ],
 });
-
-//const dashboard = new parseDashboard(configDash, {allowInsecureHTTP: configDash.allowInsecureHTTP});
 
 // Parse Server plays nicely with the rest of your web routes
 app.get('/', function(req, res) {
