@@ -4,7 +4,7 @@
 var express = require('express');
 var ParseServer = require('parse-server').ParseServer;
 var path = require('path');
-const parseDashboard = require('parse-dashboard');
+const ParseDashboard = require('parse-dashboard');
 
 var databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI;
 
@@ -36,24 +36,18 @@ var mountPath = process.env.PARSE_MOUNT || '/parse';
 app.use(mountPath, api);
 
 // Server Dashboard
-let users;
-if (DASHBOARD_AUTH) {
-	const [user, pass] = DASHBOARD_AUTH.split(':');
-	users = [{user, pass}];
-}
+var dashboard = new ParseDashboard({
+  apps: [
+    {
+      appId: process.env.APP_ID || 'myAppId',
+      masterKey: process.env.MASTER_KEY || 'myMasterKey',
+      serverURL: process.env.SERVER_URL || 'http://localhost:1337/parse',
+      appName: process.env.APP_NAME || 'MyApp',
+    },
+  ],
+});
 
-var configDash = {
-	"allowInsecureHTTP": true,
-	"apps": [{
-		serverURL: '/parse',
-		appId: APP_ID,
-		masterKey: MASTER_KEY,
-		appName: 'Ideal Dive'
-	}],
-	"users": users
-};
-
-const dashboard = new parseDashboard(configDash, {allowInsecureHTTP: configDash.allowInsecureHTTP});
+//const dashboard = new parseDashboard(configDash, {allowInsecureHTTP: configDash.allowInsecureHTTP});
 
 // Parse Server plays nicely with the rest of your web routes
 app.get('/', function(req, res) {
