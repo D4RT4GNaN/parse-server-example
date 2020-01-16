@@ -36,17 +36,25 @@ var mountPath = process.env.PARSE_MOUNT || '/parse';
 app.use(mountPath, api);
 
 // Server Dashboard
-var dashboard = new ParseDashboard({
-  apps: [
+
+var configDash = {
+	"allowInsecureHTTP": true,
+	"apps": [{
+	  appId: process.env.APP_ID || 'myAppId',
+    masterKey: process.env.MASTER_KEY || 'myMasterKey',
+    serverURL: process.env.SERVER_URL || 'http://localhost:1337/parse',
+    appName: process.env.APP_NAME || 'MyApp',
+	}],
+  "users": [
     {
-      appId: process.env.APP_ID || 'myAppId',
-      masterKey: process.env.MASTER_KEY || 'myMasterKey',
-      serverURL: process.env.SERVER_URL || 'http://localhost:1337/parse',
-      appName: process.env.APP_NAME || 'MyApp',
-    },
-    {allowInsecureHTTP: configDash.allowInsecureHTTP}
-  ],
-});
+      "user":"user",
+      "pass":"pass"
+    }
+  ]
+};
+
+const dashboard = new parseDashboard(configDash, {allowInsecureHTTP: configDash.allowInsecureHTTP});
+
 
 // Parse Server plays nicely with the rest of your web routes
 app.get('/', function(req, res) {
