@@ -4,7 +4,7 @@
 var express = require('express');
 var ParseServer = require('parse-server').ParseServer;
 var path = require('path');
-const ParseDashboard = require('parse-dashboard');
+var ParseDashboard = require('parse-dashboard');
 
 var databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI;
 
@@ -12,6 +12,7 @@ if (!databaseUri) {
   console.log('DATABASE_URI not specified, falling back to localhost.');
 }
 
+// Server Dashboard
 var api = new ParseServer({
   databaseURI: databaseUri || 'mongodb+srv://Administrator:idealdivepassword@idealdivedb-vnhxy.mongodb.net/test?retryWrites=true&w=majority',
   cloud: process.env.CLOUD_CODE_MAIN || __dirname + '/cloud/main.js',
@@ -22,6 +23,24 @@ var api = new ParseServer({
     classNames: ["Posts", "Comments"] // List of classes to support for query subscriptions
   }
 });
+
+var configDash = {
+	"allowInsecureHTTP": true,
+	"apps": [{
+	 	appId: process.env.APP_ID || 'myAppId',
+    		masterKey: process.env.MASTER_KEY || 'myMasterKey',
+    		serverURL: process.env.SERVER_URL || 'http://localhost:1337/parse',
+    		appName: process.env.APP_NAME || 'MyApp',
+	}],
+  	"users": [{
+      		"user":"user",
+      		"pass":"pass"
+    	}]
+};
+
+var dashboard = new ParseDashboard(configDash, {allowInsecureHTTP: configDash.allowInsecureHTTP});
+
+
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server
 // If you wish you require them, you can set them as options in the initialization above:
 // javascriptKey, restAPIKey, dotNetKey, clientKey
@@ -34,27 +53,6 @@ app.use('/public', express.static(path.join(__dirname, '/public')));
 // Serve the Parse API on the /parse URL prefix
 var mountPath = process.env.PARSE_MOUNT || '/parse';
 app.use(mountPath, api);
-
-// Server Dashboard
-
-var configDash = {
-	"allowInsecureHTTP": true,
-	"apps": [{
-	  appId: process.env.APP_ID || 'myAppId',
-    masterKey: process.env.MASTER_KEY || 'myMasterKey',
-    serverURL: process.env.SERVER_URL || 'http://localhost:1337/parse',
-    appName: process.env.APP_NAME || 'MyApp',
-	}],
-  "users": [
-    {
-      "user":"user",
-      "pass":"pass"
-    }
-  ]
-};
-
-const dashboard = new parseDashboard(configDash, {allowInsecureHTTP: configDash.allowInsecureHTTP});
-
 
 // Parse Server plays nicely with the rest of your web routes
 app.get('/', function(req, res) {
